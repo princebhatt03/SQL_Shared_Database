@@ -1,19 +1,14 @@
 const mysql = require('mysql2');
-require('dotenv').config();
+require('dotenv').config(); // Load environment variables
 
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
+// Create MySQL Connection Pool (Better Performance)
+const pool = mysql.createPool({
+  connectionLimit: 10, // Set max connections
+  uri: process.env.DATABASE_URL, // Using Clever Cloud MySQL URI from .env
+  waitForConnections: true,
+  queueLimit: 0,
 });
 
-db.connect(err => {
-  if (err) {
-    console.error('Database connection failed: ' + err.stack);
-    return;
-  }
-  console.log('Connected to MySQL Database');
-});
-
+// Export the connection (with Promises)
+const db = pool.promise(); // Converts to async/await compatible
 module.exports = db;
